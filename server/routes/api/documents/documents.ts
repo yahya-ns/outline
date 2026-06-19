@@ -577,7 +577,7 @@ router.post(
   async (ctx: APIContext<T.DocumentsInfoReq>) => {
     const { id, shareId } = ctx.input.body;
     const { user } = ctx.state.auth;
-    const apiVersion = getAPIVersion(ctx);
+    const apiVersion = ctx.input.body?.apiVersion ?? ctx.state.apiVersion ?? 3;
     const teamFromCtx = await getTeamFromContext(ctx, {
       includeOAuthState: false,
     });
@@ -2087,17 +2087,5 @@ router.post(
     };
   }
 );
-
-// Remove this helper once apiVersion is removed (#6175)
-function getAPIVersion(ctx: APIContext) {
-  return Number(
-    ctx.headers["x-api-version"] ??
-      (typeof ctx.input.body === "object" &&
-        ctx.input.body &&
-        "apiVersion" in ctx.input.body &&
-        ctx.input.body.apiVersion) ??
-      0
-  );
-}
 
 export default router;

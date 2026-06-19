@@ -35,7 +35,7 @@ async function presentDocument(
     ...options,
   };
 
-  const asData = !ctx || Number(ctx?.headers["x-api-version"] ?? 0) >= 3;
+  const asData = !ctx || (ctx.state.apiVersion ?? 3) >= 3;
 
   const data = await DocumentHelper.toJSON(
     document,

@@ -341,7 +341,7 @@ Most policies start with `isTeamModel(actor, target)` — the rule applies only 
 
 Each model has a `presentX(model, options?)` function in `server/presenters/`. Presenters are the only sanctioned way to convert a Sequelize model into a client payload.
 
-- **`presentDocument`** is the most complex presenter. It branches on `x-api-version` (v3 vs pre-v3) and an `Options` parameter (`{ isPublic, shareId, includeText, includeData, includeUpdatedAt, includeCommentCount, backlinkIds }`) to render the right combination of `text`, `content` (ProseMirror JSON), and `url` / `urlId`. The Y.js CRDT state is **not** part of the HTTP response — it is fetched separately through the collaboration path. Plugins can extend the returned shape via the `DocumentPresenter` extension point.
+- **`presentDocument`** is the most complex presenter. It branches on the negotiated API version (v3 vs pre-v3) and an `Options` parameter (`{ isPublic, shareId, includeText, includeData, includeUpdatedAt, includeCommentCount, backlinkIds }`) to render the right combination of `text`, `content` (ProseMirror JSON), and `url` / `urlId`. The Y.js CRDT state is **not** part of the HTTP response — it is fetched separately through the collaboration path. Plugins can extend the returned shape via the `DocumentPresenter` extension point.
 - **`presentEnv`** reads the `@Public`-decorated environment variables from `server/env.ts` and returns the subset that is safe to ship to the client. The `@Public` decorator is the explicit whitelist; anything not decorated is server-only.
 - **`presentPolicies`** is called by presenters that need to ship authorization answers to the client (see [Policies pattern](#policies-pattern)).
 
@@ -354,7 +354,7 @@ The `Options` parameter is what lets the same presenter serve list views, search
 - **`includeUpdatedAt`** / **`includeCommentCount`** — small flags consumed by list and search views to avoid a follow-up round trip.
 - **`backlinkIds`** — list of document ids that link back to this one, pre-computed by the `BacklinksProcessor` for the `?includeBacklinks` API flag.
 
-The `x-api-version` header flips between pre-v3 (legacy clients; `content` is the ProseMirror JSON) and v3 (current; `content` is normalised to v3 mark / node names). pre-v3 support is kept for backwards compatibility with older API clients; new code should target v3.
+The version comes from the `apiVersion` middleware (in `server/middlewares/apiVersion.ts`) which attaches it to `ctx.state.apiVersion`. See [API_VERSIONING.md](API_VERSIONING.md) for the full policy. The negotiated version flips between pre-v3 (legacy clients; `content` is the ProseMirror JSON) and v3 (current; `content` is normalised to v3 mark / node names). pre-v3 support is kept for backwards compatibility with older API clients; new code should target v3.
 
 The same per-caller gating pattern is used by `presentShare` (`server/presenters/share.ts`), which strips `lastAccessedAt` and `expiresAt` from the payload unless `isAdmin = true` is passed. The two fields are emitted side by side so an admin caller can see both the timestamp of the last access and the timestamp at which the share will auto-revoke.
 

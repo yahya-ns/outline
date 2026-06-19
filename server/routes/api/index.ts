@@ -7,6 +7,7 @@ import userAgent from "koa-useragent";
 import env from "@server/env";
 import { NotFoundError } from "@server/errors";
 import { apiContext } from "@server/middlewares/apiContext";
+import { apiVersion } from "@server/middlewares/apiVersion";
 import coalesceBody from "@server/middlewares/coaleseBody";
 import requestContextMiddleware from "@server/middlewares/requestContext";
 import requestTracer from "@server/middlewares/requestTracer";
@@ -50,6 +51,7 @@ import templates from "./templates";
 import urls from "./urls";
 import userMemberships from "./userMemberships";
 import users from "./users";
+import version from "./version";
 import views from "./views";
 import accessRequests from "./accessRequests";
 
@@ -78,6 +80,7 @@ api.use(apiResponse());
 api.use(apiErrorHandler());
 api.use(editor());
 api.use(apiContext());
+api.use(apiVersion());
 api.use(verifyCSRFToken());
 
 // Register plugin API routes before others to allow for overrides
@@ -86,6 +89,7 @@ PluginManager.getHooks(Hook.API).forEach((hook) =>
 );
 
 // routes
+router.use("/", version.routes());
 router.use("/", auth.routes());
 router.use("/", authenticationProviders.routes());
 router.use("/", events.routes());

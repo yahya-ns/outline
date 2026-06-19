@@ -80,6 +80,10 @@ export type AppState = {
   oauthClient?: OAuthClient;
   oauthIntent?: OAuthIntent;
   oauthState?: OAuthState;
+  /** Negotiated API version, populated by the apiVersion middleware. */
+  apiVersion?: number;
+  /** True when the negotiated API version is not in the supported list. */
+  deprecatedVersion?: boolean;
 };
 
 export type AppContext = ParameterizedContext<AppState, DefaultContext>;

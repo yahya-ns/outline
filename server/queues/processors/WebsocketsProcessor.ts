@@ -998,6 +998,11 @@ export default class WebsocketsProcessor {
       channels.push(`group-${membership.groupId}`);
     }
 
+    // Per-document room: clients viewing this specific document have joined
+    // (via websocketRooms.joinDocumentRoom) and will receive the broadcast
+    // without the per-team noise of every other team member.
+    channels.push(`document-${document.id}`);
+
     return uniq(channels);
   }
 

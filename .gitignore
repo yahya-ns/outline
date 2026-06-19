@@ -15,6 +15,7 @@ data/*
 *.key
 *.cert
 .history
+.slim/deepwork/
 
 # Yarn Berry
 .yarn/*

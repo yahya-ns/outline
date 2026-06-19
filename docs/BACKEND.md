@@ -293,6 +293,18 @@ The following modules concentrate the bulk of the API surface; for the full list
 
 > Per-endpoint documentation is published at <https://getoutline.com/developers>. The source-of-truth schema lives in the colocated `schema.ts` files; when in doubt, read the schema.
 
+### Chat API
+
+Three endpoints for per-collection plain-text chat. Mirrors the Comments pattern.
+
+| Endpoint | Auth | Notes |
+| --- | --- | --- |
+| `POST /api/chat.list` | `auth()` + `authorize(user, "read", collection)` | Paginated by `collectionId`. |
+| `POST /api/chat.create` | `auth()` + `rateLimiter(TwentyFivePerMinute)` + `authorize(user, "updateDocument", collection)` + `transaction()` | Body length validated at 4000 chars (see [API_VERSIONING.md](API_VERSIONING.md)). |
+| `POST /api/chat.delete` | `auth()` + `authorize(user, "delete", chatMessage)` | Soft delete via `destroyWithCtx`. Own + admin only per `policies/chat.ts`. |
+
+Live updates: the WebsocketsProcessor emits `chat.create` (full message payload) and `chat.delete` (`{ modelId }`) as direct events to `collection-${id}` — the same room the joining client already subscribes to when the collection page mounts.
+
 ### MCP rate limit per team
 
 The MCP route consumes from a dedicated, per-team rate limiter rather than the global `RateLimiter.defaultRateLimiter`. The global middleware (`defaultRateLimiter` in `server/middlewares/rateLimiter.ts`) is wired up in `server/index.ts` with a guard that skips any request whose `ctx.path` is `/mcp` or starts with `/mcp/`, so an MCP call counts only against the team's MCP budget — it does not double-bill against the shared default bucket.

@@ -270,6 +270,10 @@ Most icons come from [`outline-icons@^4`](https://www.npmjs.com/package/outline-
 
 The `IconPicker` (`app/components/IconPicker/`) lets users pick either an emoji (powered by `@emoji-mart/data` and `@emoji-mart/react`) or an icon, with a colour picker and skin-tone selector. Frequencies are persisted in `UserPreference`. Custom team emojis are owned by `Emoji` and `Emojis` and rendered via `shared/components/CustomEmoji`.
 
+### Chat panel
+
+- **Chat panel**: per-collection chat. Right-side Drawer in the Collection scene (AppSidebar → Collection → Chat action). Backed by `app/stores/ChatMessagesStore.ts` and the new `chat.list` / `chat.create` / `chat.delete` RPC verbs. Live updates via `useChatHandlers()` in `app/components/WebsocketProvider.tsx` (mirrors `useCommentHandlers`).
+
 ## Actions
 
 `app/actions/` is the centralised action registry. Every action is a plain object built with `createAction` and consumed by menus, command bar entries, keyboard shortcuts, and buttons. The shape:

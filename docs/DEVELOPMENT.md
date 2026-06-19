@@ -244,13 +244,14 @@ For a deeper tour of the codebase once the dev environment is running, start wit
 
 ## Phase 3 features
 
-All five Phase 3 features (originally scaffolds) are now real code:
+All six Phase 3 features (originally scaffolds) are now real code:
 
 - `app/scenes/Settings/AuditLog.tsx` — UI to view the `events` table with filters and pagination. Settings entry gated on `can.audit`.
 - `app/scenes/Collection/Analytics.tsx` — Per-collection analytics (popularity score, document count, average). Backed by `Document.popularityScore`; a dedicated aggregated API is a follow-up.
 - `server/services/websocketRooms.ts` — Per-document WebSocket rooms. The WebsocketsProcessor now also broadcasts document events to `document-${id}`; the team broadcast is unchanged.
 - `app/editor/extensions/UndoPersistence.ts` — Yjs undo stack persistence to IndexedDB. Disabled by default (not registered in `app/editor/extensions/index.ts`) so the existing in-memory `yUndoPlugin` is unchanged until the extension is wired in.
 - `server/collaboration/stateUpdateStrategy.ts` — Y.js update-message log (in-memory; Postgres-backed table is a follow-up). The 4 exported functions (`persistUpdate`, `loadAndReplay`, `maybeCompact`, `compact`) are real but not yet wired into `PersistenceExtension`.
+- `app/scenes/Collection/components/ChatPanel.tsx` + `server/models/ChatMessage.ts` + `server/routes/api/chat/chat.ts` — per-collection plain-text chat with live updates. Soft-delete, rate-limited, admin-or-self delete policy, broadcasting via direct `chat.create` / `chat.delete` events to the `collection-${id}` room.
 
 Related (full implementations from Phase 3, all deps present in `package.json`):
 

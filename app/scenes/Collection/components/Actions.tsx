@@ -1,7 +1,8 @@
 import { observer } from "mobx-react";
-import { EditIcon, PlusIcon } from "outline-icons";
+import { CommentIcon, EditIcon, PlusIcon } from "outline-icons";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import type Collection from "~/models/Collection";
 import { Action, Separator } from "~/components/Actions";
 import Button from "~/components/Button";
@@ -19,7 +20,7 @@ import { CollectionTab } from "./Navigation";
 import lazyWithRetry from "~/utils/lazyWithRetry";
 import history from "~/utils/history";
 import RegisterKeyDown from "~/components/RegisterKeyDown";
-import { useCallback } from "react";
+import ChatPanel from "./ChatPanel";
 
 const ShareButton = lazyWithRetry(() => import("./ShareButton"));
 
@@ -36,6 +37,7 @@ function Actions({ collection, isEditing, sidebarContext }: Props) {
   const { t } = useTranslation();
   const can = usePolicy(collection);
   const user = useCurrentUser();
+  const [chatOpen, setChatOpen] = useState(false);
 
   const goToEdit = useCallback(() => {
     history.push({
@@ -58,6 +60,18 @@ function Actions({ collection, isEditing, sidebarContext }: Props) {
           <ShareButton collection={collection} />
         </Action>
       )}
+      <Action>
+        <Tooltip content={t("Chat")} placement="bottom">
+          <Button
+            icon={<CommentIcon />}
+            onClick={() => setChatOpen(true)}
+            neutral
+            aria-label={t("Chat")}
+          >
+            {t("Chat")}
+          </Button>
+        </Tooltip>
+      </Action>
       {!isEditing && user?.separateEditMode && (
         <Action>
           <RegisterKeyDown trigger="e" handler={goToEdit} />
@@ -110,6 +124,11 @@ function Actions({ collection, isEditing, sidebarContext }: Props) {
       <Action>
         <CollectionMenu collection={collection} align="end" neutral />
       </Action>
+      <ChatPanel
+        collection={collection}
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+      />
     </>
   );
 }

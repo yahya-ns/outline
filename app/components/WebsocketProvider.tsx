@@ -16,6 +16,7 @@ import {
 import { toError } from "@shared/utils/error";
 import type RootStore from "~/stores/RootStore";
 import type Collection from "~/models/Collection";
+import type ChatMessage from "~/models/ChatMessage";
 import type Comment from "~/models/Comment";
 import type Document from "~/models/Document";
 import type FileOperation from "~/models/FileOperation";
@@ -587,6 +588,28 @@ function useCommentHandlers() {
   };
 }
 
+function useChatHandlers() {
+  const { chatMessages, users } = useStores();
+
+  return (socket: SocketWithAuthentication) => {
+    socket.on(
+      "chat.create",
+      (event: PartialExcept<ChatMessage, "id">) => {
+        // Register the author with the users store so the UI can resolve
+        // the message.user relation without a separate fetch.
+        if (event.user) {
+          users.add(event.user);
+        }
+        chatMessages.add(event);
+      }
+    );
+
+    socket.on("chat.delete", (event: WebsocketEntityDeletedEvent) => {
+      chatMessages.remove(event.modelId);
+    });
+  };
+}
+
 function useGroupHandlers() {
   const { groups, groupUsers } = useStores();
 
@@ -791,6 +814,7 @@ function WebsocketProvider({ children }: React.PropsWithChildren<object>) {
   const registerDocumentHandlers = useDocumentHandlers();
   const registerCollectionHandlers = useCollectionHandlers();
   const registerCommentHandlers = useCommentHandlers();
+  const registerChatHandlers = useChatHandlers();
   const registerGroupHandlers = useGroupHandlers();
   const registerTeamHandlers = useTeamHandlers();
   const registerUserHandlers = useUserHandlers();
@@ -819,6 +843,7 @@ function WebsocketProvider({ children }: React.PropsWithChildren<object>) {
       registerDocumentHandlers(currentSocket);
       registerCollectionHandlers(currentSocket);
       registerCommentHandlers(currentSocket);
+      registerChatHandlers(currentSocket);
       registerGroupHandlers(currentSocket);
       registerTeamHandlers(currentSocket);
       registerUserHandlers(currentSocket);

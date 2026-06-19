@@ -19,9 +19,8 @@ jobs:
       - uses: ./.github/actions/install
       - name: Build app
         run: yarn vite:build
-      # Requires the `bundlewatch` dev-dependency to be installed.
-      # Posts the result as a PR comment when run on a pull_request.
       - name: Check bundle size
+        # `bundlewatch` is in devDependencies; posts a PR comment when run on a pull_request.
         run: yarn bundle:check
         env:
           BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

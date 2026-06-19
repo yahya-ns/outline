@@ -4,10 +4,9 @@ on:
   pull_request:
     branches: [main]
 
-# @axe-core/cli must be added to devDependencies before this workflow
-# will succeed. `yarn a11y` resolves the `axe` binary from
-# node_modules/.bin and downloads Chromium via puppeteer's postinstall
-# hook. See docs/A11Y.md for context.
+# `@axe-core/cli` is in devDependencies. `yarn a11y` resolves the `axe`
+# binary from node_modules/.bin and downloads Chromium via puppeteer's
+# postinstall hook on first run. See docs/A11Y.md for context.
 
 env:
   NODE_ENV: development

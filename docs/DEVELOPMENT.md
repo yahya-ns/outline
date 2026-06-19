@@ -256,7 +256,7 @@ The codebase has a small number of "scaffold" files — interfaces, function sig
 
 Every scaffolded file has a top-of-file `@status scaffold - not production ready` JSDoc tag and `@remarks SCAFFOLD:` JSDoc on each function explaining the real implementation. The plan reference column links back to `.slim/deepwork/outline-improvements.md` for the design notes.
 
-Related (full implementations from Phase 3 that depend on dev-deps not yet in `package.json`):
+Related (full implementations from Phase 3, all deps present in `package.json`):
 
-- `docs/A11Y.md` + `.github/workflows/a11y.yml` + `package.json` script `a11y` — the workflow will fail until `@axe-core/cli` is added to `devDependencies`.
-- `bundlewatch.config.json` + `.github/workflows/bundlewatch.yml` + `package.json` script `bundle:check` — the workflow will fail until `bundlewatch` is added to `devDependencies`. See [CI.md](CI.md) for why both bundlewatch and the existing RelativeCI `bundle-size` job exist.
+- `docs/A11Y.md` + `.github/workflows/a11y.yml` + `package.json` script `a11y` — `yarn a11y` runs `@axe-core/cli` against the dev server. CI downloads Chromium via puppeteer's postinstall on first run.
+- `bundlewatch.config.json` + `.github/workflows/bundlewatch.yml` + `package.json` script `bundle:check` — posts a PR comment when run on a pull_request. See [CI.md](CI.md) for why both bundlewatch and the existing RelativeCI `bundle-size` job exist.

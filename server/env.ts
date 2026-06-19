@@ -605,6 +605,19 @@ export class Environment {
     this.toOptionalFloat(environment.RATE_LIMITER_MULTIPLIER) ?? 1;
 
   /**
+   * Default multiplier applied to the per-team MCP rate limit for teams that
+   * do not have a custom override (TeamPreference.McpRateLimitMultiplier).
+   * The default 1.0 preserves the built-in limit of 1000 requests per hour
+   * per user/IP. Teams can override per-workspace in their team preferences.
+   */
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @CannotUseWithout("RATE_LIMITER_ENABLED")
+  public MCP_RATE_LIMIT_DEFAULT =
+    this.toOptionalFloat(environment.MCP_RATE_LIMIT_DEFAULT) ?? 1.0;
+
+  /**
    * Set max allowed upload size for file attachments.
    * @deprecated Use FILE_STORAGE_UPLOAD_MAX_SIZE instead
    */

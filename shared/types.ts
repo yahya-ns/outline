@@ -432,6 +432,8 @@ export enum TeamPreference {
   EmailDisplay = "emailDisplay",
   /** Whether external MCP clients can connect to the workspace. */
   MCP = "mcp",
+  /** Per-team multiplier applied to the MCP rate limit. 1.0 = built-in default. */
+  McpRateLimitMultiplier = "mcpRateLimitMultiplier",
   /** List of disabled embed provider titles. */
   DisabledEmbeds = "disabledEmbeds",
 }
@@ -450,6 +452,7 @@ export type TeamPreferences = {
   [TeamPreference.PreventDocumentEmbedding]?: boolean;
   [TeamPreference.EmailDisplay]?: EmailDisplay;
   [TeamPreference.MCP]?: boolean;
+  [TeamPreference.McpRateLimitMultiplier]?: number;
   [TeamPreference.DisabledEmbeds]?: string[];
 };
 

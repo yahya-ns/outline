@@ -163,3 +163,67 @@ export const RateLimiterStrategy = {
     requests: 5,
   },
 };
+
+type RateLimiterStrategyConfig = {
+  duration: number;
+  requests: number;
+};
+
+const mcpRateLimitStrategyCache = new Map<number, RateLimiterStrategyConfig>();
+
+/**
+ * Returns a cached MCP rate limiter strategy scaled by the given multiplier.
+ * The base limit is 1000 requests per hour; the resulting strategy's
+ * `requests` value is `max(1, floor(1000 * multiplier))`. The result is
+ * memoized per multiplier so the same strategy object is reused across
+ * requests.
+ *
+ * @param multiplier The team-specific multiplier applied to the base limit.
+ * @returns A rate limiter strategy with the scaled `requests` value.
+ */
+export function getMcpRateLimitStrategy(
+  multiplier: number
+): RateLimiterStrategyConfig {
+  const cached = mcpRateLimitStrategyCache.get(multiplier);
+  if (cached) {
+    return cached;
+  }
+
+  const strategy: RateLimiterStrategyConfig = {
+    duration: 3600,
+    requests: Math.max(1, Math.floor(1000 * multiplier)),
+  };
+  mcpRateLimitStrategyCache.set(multiplier, strategy);
+  return strategy;
+}
+
+const mcpRateLimiterCache = new Map<number, RateLimiterRedis>();
+
+/**
+ * Returns a cached MCP rate limiter scaled by the given multiplier. Unlike
+ * the path-keyed `RateLimiter` registry (which is shared by every team that
+ * hits the same path), this cache is keyed by `multiplier` and the caller is
+ * expected to consume with a per-team key (e.g. `mcp:${teamId}`) so that
+ * teams do not share a bucket. The instance is memoized so that the same
+ * `RateLimiterRedis` is reused across requests.
+ *
+ * @param multiplier The team-specific multiplier applied to the base limit.
+ * @returns A RateLimiterRedis with the scaled points/duration.
+ */
+export function getMcpRateLimiter(multiplier: number): RateLimiterRedis {
+  const cached = mcpRateLimiterCache.get(multiplier);
+  if (cached) {
+    return cached;
+  }
+
+  const strategy = getMcpRateLimitStrategy(multiplier);
+  const limiter = new RateLimiterRedis({
+    storeClient: Redis.defaultClient,
+    points: strategy.requests,
+    duration: strategy.duration,
+    keyPrefix: `${RateLimiter.RATE_LIMITER_REDIS_KEY_PREFIX}:mcp`,
+    insuranceLimiter: RateLimiter.insuranceRateLimiter,
+  });
+  mcpRateLimiterCache.set(multiplier, limiter);
+  return limiter;
+}

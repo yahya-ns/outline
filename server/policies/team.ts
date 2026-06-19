@@ -57,3 +57,12 @@ allow(User, ["createTemplate", "updateTemplate"], Team, (actor, team) =>
     isTeamMutable(actor)
   )
 );
+
+allow(User, "createUser", Team, (actor, team) =>
+  and(
+    //
+    actor.isAdmin,
+    isTeamModel(actor, team),
+    isTeamMutable(actor)
+  )
+);

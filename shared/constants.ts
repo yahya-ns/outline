@@ -36,6 +36,7 @@ export const TeamPreferenceDefaults: TeamPreferences = {
   [TeamPreference.PreventDocumentEmbedding]: false,
   [TeamPreference.EmailDisplay]: EmailDisplay.Members,
   [TeamPreference.MCP]: true,
+  [TeamPreference.McpRateLimitMultiplier]: 1.0,
   [TeamPreference.DisabledEmbeds]: [],
 };
 

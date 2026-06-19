@@ -22,6 +22,7 @@ export default function presentShare(share: Share, isAdmin = false) {
     title: share.title,
     iconUrl: share.iconUrl,
     lastAccessedAt: share.lastAccessedAt || undefined,
+    expiresAt: share.expiresAt || undefined,
     views: share.views || 0,
     domain: share.domain,
     createdAt: share.createdAt,
@@ -30,6 +31,7 @@ export default function presentShare(share: Share, isAdmin = false) {
 
   if (!isAdmin) {
     delete data.lastAccessedAt;
+    delete data.expiresAt;
   }
 
   return data;

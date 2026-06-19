@@ -5,16 +5,17 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
 import { ErrorCode } from "@modelcontextprotocol/sdk/types.js";
+import { RateLimiterRes } from "rate-limiter-flexible";
 import { toError } from "@shared/utils/error";
 import { TeamPreference } from "@shared/types";
+import env from "@server/env";
 import { NotFoundError } from "@server/errors";
 import Logger from "@server/logging/Logger";
 import auth from "@server/middlewares/authentication";
-import { rateLimiter } from "@server/middlewares/rateLimiter";
 import requestTracer from "@server/middlewares/requestTracer";
 import { UserFlag } from "@server/models/User";
 import { AuthenticationType } from "@server/types";
-import { RateLimiterStrategy } from "@server/utils/RateLimiter";
+import { getMcpRateLimiter } from "@server/utils/RateLimiter";
 import { attachmentTools } from "@server/tools/attachments";
 import { collectionTools } from "@server/tools/collections";
 import { commentTools } from "@server/tools/comments";
@@ -74,7 +75,6 @@ function createMcpServer(scopes: string[], guidance?: string): McpServer {
 
 router.post(
   "/",
-  rateLimiter(RateLimiterStrategy.OneThousandPerHour),
   auth({
     type: [
       AuthenticationType.MCP,
@@ -87,6 +87,43 @@ router.post(
 
     if (!user.team.getPreference(TeamPreference.MCP)) {
       throw NotFoundError();
+    }
+
+    // Consume from the per-team MCP rate limiter directly. The team's
+    // preference (TeamPreference.McpRateLimitMultiplier) is preferred; the
+    // operator-tunable env default (env.MCP_RATE_LIMIT_DEFAULT) is the
+    // fallback for teams without a custom override. The global default
+    // rate limiter is configured to skip /mcp/ so this consume is the
+    // only place that counts against the team's MCP budget.
+    const mcpRateLimitMultiplier =
+      user.team.getPreference(TeamPreference.McpRateLimitMultiplier) ??
+      env.MCP_RATE_LIMIT_DEFAULT;
+
+    try {
+      await getMcpRateLimiter(mcpRateLimitMultiplier).consume(
+        `mcp:${user.teamId}`
+      );
+    } catch (rateLimiterRes) {
+      if (rateLimiterRes instanceof RateLimiterRes) {
+        ctx.res.setHeader(
+          "Retry-After",
+          `${Math.ceil(rateLimiterRes.msBeforeNext / 1000)}`
+        );
+        ctx.res.writeHead(429, { "Content-Type": "application/json" });
+        ctx.res.end(
+          JSON.stringify({
+            jsonrpc: "2.0",
+            error: {
+              code: ErrorCode.InternalError,
+              message: "Rate limit exceeded",
+            },
+            id: null,
+          })
+        );
+        return;
+      }
+
+      Logger.error("MCP rate limiter error", toError(rateLimiterRes));
     }
 
     user.setFlag(UserFlag.MCP);

@@ -122,6 +122,15 @@ class Share extends IdModel<
   @Column
   lastAccessedAt: Date | null;
 
+  /**
+   * Optional time at which the share should be auto-revoked. Once a daily
+   * cron task (`CleanupExpiredSharesTask`) sees this value in the past it
+   * sets `revokedAt` to the current time. A null value means the share
+   * never expires.
+   */
+  @Column
+  expiresAt: Date | null;
+
   /** Total count of times the shared link has been accessed */
   @Default(0)
   @Column

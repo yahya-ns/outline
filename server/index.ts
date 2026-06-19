@@ -94,8 +94,16 @@ async function start(_id: number, disconnect: () => void) {
   // catch errors in one place, automatically set status and response headers
   onerror(app);
 
-  // Apply default rate limit to all routes
-  app.use(defaultRateLimiter());
+  // Apply default rate limit to all routes. /mcp/ has its own per-team rate
+  // limiter consumed from the route handler, so skip it here to avoid
+  // double-billing teams against the global default bucket.
+  const defaultLimiter = defaultRateLimiter();
+  app.use(async (ctx, next) => {
+    if (ctx.path === "/mcp" || ctx.path.startsWith("/mcp/")) {
+      return next();
+    }
+    return defaultLimiter(ctx, next);
+  });
 
   /** Perform a redirect on the browser so that the user's auth cookies are included in the request. */
   app.context.redirectOnClient = function (

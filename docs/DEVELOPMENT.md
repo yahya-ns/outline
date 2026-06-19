@@ -242,19 +242,15 @@ When you make your first change, expect a `dev:backend` rebuild on every save; t
 
 For a deeper tour of the codebase once the dev environment is running, start with [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) and the service map in [`docs/SERVICES.md`](SERVICES.md).
 
-## Known scaffolds
+## Phase 3 features
 
-The codebase has a small number of "scaffold" files — interfaces, function signatures, and JSDoc describing a feature, but with bodies that throw `Not implemented` until the real implementation lands. These files compile, but using them at runtime will throw. They exist to make future work easier, not to be relied on.
+All five Phase 3 features (originally scaffolds) are now real code:
 
-| File | Status | What it is | Plan ref |
-| --- | --- | --- | --- |
-| `app/scenes/Settings/AuditLog.tsx` | scaffold | UI to view the `events` table with filters and pagination. | Phase 3 #11 |
-| `app/scenes/Collection/Analytics.tsx` | scaffold | Per-collection document analytics (views/reads/edits). Backed by `DocumentInsight`. | Phase 3 #12 |
-| `server/services/websocketRooms.ts` | scaffold | Per-document WebSocket rooms. Currently the WebsocketsProcessor broadcasts to `team-${id}` only. | Phase 3 #13 |
-| `app/editor/extensions/UndoPersistence.ts` | scaffold | Yjs undo stack persistence to IndexedDB. Today `yUndoPlugin` is in-memory only. | Phase 3 #14 |
-| `server/collaboration/stateUpdateStrategy.ts` | scaffold | Y.js update-message log instead of full `Document.state` BLOB per write. | Phase 3 #15 |
-
-Every scaffolded file has a top-of-file `@status scaffold - not production ready` JSDoc tag and `@remarks SCAFFOLD:` JSDoc on each function explaining the real implementation. The plan reference column links back to `.slim/deepwork/outline-improvements.md` for the design notes.
+- `app/scenes/Settings/AuditLog.tsx` — UI to view the `events` table with filters and pagination. Settings entry gated on `can.audit`.
+- `app/scenes/Collection/Analytics.tsx` — Per-collection analytics (popularity score, document count, average). Backed by `Document.popularityScore`; a dedicated aggregated API is a follow-up.
+- `server/services/websocketRooms.ts` — Per-document WebSocket rooms. The WebsocketsProcessor now also broadcasts document events to `document-${id}`; the team broadcast is unchanged.
+- `app/editor/extensions/UndoPersistence.ts` — Yjs undo stack persistence to IndexedDB. Disabled by default (not registered in `app/editor/extensions/index.ts`) so the existing in-memory `yUndoPlugin` is unchanged until the extension is wired in.
+- `server/collaboration/stateUpdateStrategy.ts` — Y.js update-message log (in-memory; Postgres-backed table is a follow-up). The 4 exported functions (`persistUpdate`, `loadAndReplay`, `maybeCompact`, `compact`) are real but not yet wired into `PersistenceExtension`.
 
 Related (full implementations from Phase 3, all deps present in `package.json`):
 

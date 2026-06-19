@@ -35,7 +35,9 @@
     "test:watch": "TZ=UTC vitest",
     "vite:dev": "VITE_CJS_IGNORE_WARNING=true vite",
     "vite:build": "VITE_CJS_IGNORE_WARNING=true vite build",
-    "vite:preview": "VITE_CJS_IGNORE_WARNING=true vite preview"
+    "vite:preview": "VITE_CJS_IGNORE_WARNING=true vite preview",
+    "a11y": "axe http://localhost:3001 --save a11y-report.json --exit",
+    "bundle:check": "bundlewatch --config bundlewatch.config.json"
   },
   "funding": {
     "type": "GitHub Sponsors ❤",

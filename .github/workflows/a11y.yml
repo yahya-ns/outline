@@ -1,0 +1,47 @@
+name: A11y
+
+on:
+  pull_request:
+    branches: [main]
+
+# @axe-core/cli must be added to devDependencies before this workflow
+# will succeed. `yarn a11y` resolves the `axe` binary from
+# node_modules/.bin and downloads Chromium via puppeteer's postinstall
+# hook. See docs/A11Y.md for context.
+
+env:
+  NODE_ENV: development
+  URL: http://localhost:3000
+  NODE_OPTIONS: --max-old-space-size=8192
+
+jobs:
+  a11y:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/install
+      - name: Start Vite dev server
+        run: yarn vite:dev > /tmp/vite.log 2>&1 &
+      - name: Wait for dev server
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fs http://localhost:3001 > /dev/null 2>&1; then
+              echo "Dev server ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Timed out waiting for dev server" >&2
+          cat /tmp/vite.log >&2 || true
+          exit 1
+      - name: Run axe accessibility checks
+        run: yarn a11y
+      - name: Upload a11y report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-report
+          path: a11y-report.json
+          if-no-files-found: ignore
+          retention-days: 14

@@ -12,6 +12,14 @@ import {
 
 allow(User, "read", User, isTeamModel);
 
+allow(User, "create", User, (actor) =>
+  and(
+    //
+    actor.isAdmin,
+    isTeamMutable(actor)
+  )
+);
+
 allow(User, "listUsers", Team, (actor, team) =>
   and(
     //

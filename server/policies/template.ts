@@ -11,6 +11,14 @@ allow(User, "updateTemplate", Team, (actor, team) =>
   )
 );
 
+allow(User, "create", Template, (actor) =>
+  and(
+    //
+    actor.isAdmin,
+    isTeamMutable(actor)
+  )
+);
+
 allow(User, "read", Template, (actor, template) =>
   and(
     isTeamModel(actor, template),

@@ -1,0 +1,67 @@
+{
+  "files": [
+    {
+      "path": "./build/app/assets/index.*.js",
+      "maxSize": "500KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-shared.*.js",
+      "maxSize": "30KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-react.*.js",
+      "maxSize": "350KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-prosemirror.*.js",
+      "maxSize": "120KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-collab.*.js",
+      "maxSize": "200KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-framer-motion.*.js",
+      "maxSize": "100KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-styled.*.js",
+      "maxSize": "50KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-mermaid-elk.*.js",
+      "maxSize": "400KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-mermaid.*.js",
+      "maxSize": "600KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-katex.*.js",
+      "maxSize": "250KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-emoji.*.js",
+      "maxSize": "80KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-es-toolkit.*.js",
+      "maxSize": "30KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-date.*.js",
+      "maxSize": "80KB"
+    },
+    {
+      "path": "./build/app/assets/vendor-sentry.*.js",
+      "maxSize": "100KB"
+    }
+  ],
+  "defaultCompression": "gzip",
+  "maxSizeIncrease": 0.1,
+  "ci": {
+    "trackBranches": ["main"],
+    "repoCompareBranch": "main",
+    "summary": "comment"
+  }
+}

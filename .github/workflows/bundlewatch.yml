@@ -1,0 +1,27 @@
+name: Bundle Size
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_ENV: production
+  NODE_OPTIONS: --max-old-space-size=8192
+
+jobs:
+  bundle-size:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/install
+      - name: Build app
+        run: yarn vite:build
+      # Requires the `bundlewatch` dev-dependency to be installed.
+      # Posts the result as a PR comment when run on a pull_request.
+      - name: Check bundle size
+        run: yarn bundle:check
+        env:
+          BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

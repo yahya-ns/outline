@@ -17,6 +17,7 @@ import {
   InternetIcon,
   SmileyIcon,
   BrowserIcon,
+  HistoryIcon,
 } from "outline-icons";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -33,6 +34,7 @@ import useStores from "./useStores";
 const ApiKeys = lazy(() => import("~/scenes/Settings/ApiKeys"));
 const Applications = lazy(() => import("~/scenes/Settings/Applications"));
 const APIAndAccess = lazy(() => import("~/scenes/Settings/APIAndAccess"));
+const AuditLog = lazy(() => import("~/scenes/Settings/AuditLog"));
 const Authentication = lazy(() => import("~/scenes/Settings/Authentication"));
 const Details = lazy(() => import("~/scenes/Settings/Details"));
 const Export = lazy(() => import("~/scenes/Settings/Export"));
@@ -234,6 +236,15 @@ const useSettingsConfig = () => {
         group: t("Workspace"),
         icon: ExportIcon,
       },
+      {
+        name: t("Audit Log"),
+        path: settingsPath("audit-log"),
+        component: AuditLog.Component,
+        preload: AuditLog.preload,
+        enabled: !!can.audit,
+        group: t("Workspace"),
+        icon: HistoryIcon,
+      },
       // Integrations
       {
         name: t("Embeds"),
@@ -283,7 +294,7 @@ const useSettingsConfig = () => {
     });
 
     return items;
-  }, [t, can.createApiKey, can.update, can.createImport, can.createExport]);
+  }, [t, can.createApiKey, can.update, can.createImport, can.createExport, can.audit]);
 
   return config.filter((item) => item.enabled);
 };
